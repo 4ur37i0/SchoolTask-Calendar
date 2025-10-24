@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.87 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.87 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.439 0 0);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Limitar la altura de cada celda del día */
+.fc-daygrid-day {
+  height: 100px; /* altura fija de los días */
+  min-height: 120px;
+  max-height: 120px;
+  overflow: hidden;
+  position: relative;
+  padding: 2px;
+  box-sizing: border-box;
+  border: 1px solid #e5e7eb; /* borde gris claro */
+  border-radius: 6px;
+  background-color: #f9fafb; /* fondo suave */
+}
+
+/* Contenedor de eventos dentro del día */
+.fc-daygrid-day-events {
+  max-height: 100px; /* límite dentro del día */
+  overflow-y: auto; /* scroll vertical si hay demasiados eventos */
+  margin-top: 4px;
+}
+
+/* Eventos individuales */
+.fc-daygrid-event {
+  font-size: 0.8rem;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  border-radius: 4px;
+  color: white;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.dark .fc-day-today {
+  background-color: #ba944192 !important; /* resalta el día actual */
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: 0px
+}
+
+.fc-daygrid-day-events::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1; 
+  border-radius: 3px;
+}
+
+.fc-daygrid-day-events::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.fc-direction-ltr .fc-daygrid-event.fc-event-end, .fc-direction-rtl .fc-daygrid-event.fc-event-start {
+    border-width: 3px;
+}
+
+.dark .fc {
+  color: #e5e7eb; /* texto gris claro */
+}
+
+.dark .fc-daygrid-day {
+  background-color: #1f2937; /* gris oscuro */
+  border-color: #374151; /* gris más claro para bordes */
+}
+
+.dark .fc-col-header-cell {
+  background-color: #111827;
+  color: #f9fafb;
+  border-color: #374151;
+}
+
+.dark .fc-button-primary {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.dark .fc-button-primary:hover {
+  background-color: #1d4ed8;
+}
+
+/* Scrollbar oscuro */
+.dark .fc-daygrid-day-events::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+.dark .fc-daygrid-day-events::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+@media (max-width: 640px) {
+  /* Ajusta altura de los días */
+  .fc-daygrid-day {
+    height: 110px;
+    min-height: 100px;
+    max-height: 100px;
+    padding: 2px;
+  }
+
+  /* Contenedor de eventos dentro del día */
+  .fc-daygrid-day-events {
+    max-height: 90px;
+    overflow-y: auto;
+  }
+
+  /* Eventos individuales */
+  .fc-daygrid-event {
+    font-size: 0.7rem;
+    padding: 2px 3px;
+  }
+
+  /* Ajusta encabezado de calendario */
+  .fc-toolbar-title {
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* Botones de navegación */
+  .fc .fc-toolbar-chunk {
+    flex-direction: column; /* coloca botones y título en columna */
+    gap: 4px;
+  }
+
+  .fc-button {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  /* Ajusta las celdas de la semana para que tengan más espacio */
+  .fc-col-header-cell {
+    font-size: 0.7rem;
+    padding: 4px 0;
+  }
+
+  .fc .fc-toolbar {
+    display: block;
+  }
+
+  .fc .fc-toolbar-title {
+    font-size: 1.75em;
+    margin: 10px;
+    font-weight: 900;
+  }
+}
