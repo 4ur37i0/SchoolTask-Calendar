@@ -3,7 +3,8 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import Calendar from '@/Components/Calendar';
+import Calendar from '@/components/Calendar';
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

@@ -1,5 +1,6 @@
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
+import { StringifyOptions } from 'querystring';
 
 export interface Auth {
     user: User;
@@ -40,4 +41,43 @@ export interface User {
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
+}
+
+//typos for personal task
+
+//typo for task
+export interface Task{
+    id: number;
+    user_id: number;
+    platform_id: number;
+    title: string;
+    description?: string;
+    course?: string;
+    due_date: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+    priority: 'low' | 'medium' | 'high';
+    source_type: 'external' | 'personal';
+    created_at: string;
+    updated_at: string;
+}
+
+//typo for platform
+export interface Platform {
+    id: number;
+    name: string;
+    type: 'classroom' | 'moodle' | 'personal';
+    default_color: string;
+    url?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+//typo for create task data (personal task)
+export interface CreateTaskData {
+    title: string;
+    description?: string;
+    due_date: string;
+    status: 'pending' | 'in_progress' | 'completed' | 'overdue';
+    priority: 'low' | 'medium' | 'high';
+    source_type: 'external' | 'personal';
 }

@@ -31,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/tasks', [TaskController::class, 'getTasks']);
     Route::get('/listPlatforms', [PlatformController::class, 'getLocalPlatforms']);
+
+    Route::post('/tasks', [TaskController::class, 'store']);
     
 });
 
