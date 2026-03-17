@@ -12,13 +12,26 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
-            $table->string('course');
+            $table->id(); //id made by laravel
+
+            //platform taks atributes 
+            $table->string('course')->nullable(); //course name (optional for personal tasks)
             $table->text('title');
             $table->date('due_date');
-            $table->string('color_rgb')->nullable();
             $table->enum('status', ['pendiente','hecho','atrasado'])->default('pendiente');
-            $table->timestamps();
+
+            //OPTIONAL FIELDS FOR PERSONAL TASKS
+            //personal task atributes (EXTRAS)
+            //This are optional fields that can be used for personal tasks, but are not required for platform tasks
+            $table->text('description')->nullable(); //task description (optional for personal tasks)
+            $table->enum('source_type', ['platform','personal'])->default('personal'); //indica si la tarea es interna o de plataforma
+            $table->enum('priority', ['low','medium','high'])->default('medium'); //prioridad de la tarea
+
+            $table->timestamps(); // created_at and updated_at made by laravel
+
+            //Foreign keys
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); //Relation with user
+            $table->foreignId('platform_id')->constrained()->onDelete('cascade'); //Relation with platform
         });
     }
 
