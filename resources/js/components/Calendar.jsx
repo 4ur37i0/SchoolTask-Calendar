@@ -5,6 +5,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import { Toaster, toast } from 'react-hot-toast';
 import dayjs from 'dayjs';
+import CreateTaskModal from './CreateTaskModal.tsx'; //modal for creating new tasks
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);
@@ -18,6 +19,10 @@ const Calendar = () => {
     status: ''
   });
 
+  //states for the create task modal
+  const [isModalOpen, setIsModalOpen] = useState(false); //modal visibility
+  const [selectedDate, setSelectedDate] = useState(null); //selected date for the new task
+
   const loadTasks = async () => {
     try {
       const res = await fetch('/tasks');
@@ -27,7 +32,7 @@ const Calendar = () => {
         data.map(task => ({
           title: task.title,
           start: task.due_date,
-          backgroundColor: task.color_rgb|| '#3B82F6', 
+          backgroundColor: task.color_rgb || '#3B82F6', 
           borderColor: setBorderColor(task.status) || '#3B82F6',
           textColor: '#fff',
           extendedProps: {
@@ -112,6 +117,38 @@ const Calendar = () => {
     loadTasks()
   };
 
+  //functions for create task modal
+
+  //open the create task modal 
+  const handleOpenModal = (date) => {
+    console.log('Abriendo modal para fecha:', date); //debug log to check the date being passed
+    if (date) {
+      setSelectedDate(date); //set the selected date for the new task
+    }
+    setIsModalOpen(true); //open the modal
+  };
+
+  //close the create task modal
+  const handleCloseModal = () => {
+    console.log('Cerrando modal'); //debug log to check when the modal is being closed
+    setIsModalOpen(false); //close the modal
+    setSelectedDate(''); //reset the selected date
+    dd(data); //debug log to check the data being passed to the modal
+  };
+
+  //function when a new task is created successfully
+  const handleTaskCreated = () => {
+    toast.success("Tarea creada exitosamente"); //show success message
+    handleCloseModal(); //close the modal
+    loadTasks(); //reload tasks to show the new task in the calendar
+  };
+  
+  //function to handle date click on the calendar to open the create task modal with the selected date
+  const handleDateClick = (date) => {
+    console.log('Fecha clickeada:', date.dateStr); //debug log to check the date being clicked
+    handleOpenModal(date.dateStr); //open the modal with the selected date
+  };
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -120,6 +157,16 @@ const Calendar = () => {
     <>
       <Toaster position="top-center" />
       <div className="p-4">
+
+        {/* Button to open the create task modal */}
+        <button
+          onClick={() => handleOpenModal()}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-3xl font-bold z-40 transition-all hover:scale-110"
+          title='Nueva Tarea'
+        >
+          +
+        </button>
+
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           locale={esLocale}
@@ -129,6 +176,8 @@ const Calendar = () => {
           dayMaxEventRows={true}
           eventDisplay="block"
           eventClick={(info) => viewDetails(info.event)}
+          dateClick={handleDateClick} //handle date click to open the create task modal with the selected date
+          dayCellClassNames="cursor-pointer "  // indicates that they are clickable idk how to add hover effect to the day cells tho :c
           eventDidMount={(info) => {
             const { status } = info.event.extendedProps;
             if (status === 'hecho') {
@@ -196,6 +245,13 @@ const Calendar = () => {
             </div>
           </div>
         )}
+        {/* Create Task Modal */}
+        <CreateTaskModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onTaskCreated={handleTaskCreated}
+          selectedDate={selectedDate}
+        />
       </div>
     </>
   );

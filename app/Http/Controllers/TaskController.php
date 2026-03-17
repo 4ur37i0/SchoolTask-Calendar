@@ -47,4 +47,8 @@ class TaskController extends Controller
             'newStatus' => $newStatus
         ], 200);
     }
+
+    public function store(Request $request){
+        dd($request->all()); //it works 
+    }
 }
