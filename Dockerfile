@@ -35,7 +35,7 @@ RUN echo "Installing Composer..." && \
 WORKDIR /var/www
 
 # Copy composer files
-COPY composer.json composer.lock* artisan ./
+COPY composer.json composer.lock* artisan bootstrap/ ./
 
 # Install PHP dependencies
 RUN echo "Installing PHP dependencies..." && \
