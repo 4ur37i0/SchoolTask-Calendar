@@ -219,7 +219,7 @@ const Calendar = () => {
                     taskDetails.status === 'hecho' 
                       ? 'text-green-500'
                       : taskDetails.status === 'pendiente'
-                      ? 'text-grey-500'
+                      ? 'text-black'
                       : 'text-red-500'
                   }`}
                 >

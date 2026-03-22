@@ -10,6 +10,7 @@ use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 class MoodleController extends Controller
 {
@@ -81,7 +82,7 @@ class MoodleController extends Controller
             //create or update the pivot table with the token
             UserPlatform::updateOrCreate(
                 [
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'platform_id' => $platform->id,
                 ],
                 [
@@ -115,7 +116,7 @@ class MoodleController extends Controller
                             'status' => $status,
                             'source_type' => 1,//platform
                             'priority' => 2,//medium
-                            'user_id' => auth()->id(),
+                            'user_id' => Auth::id(),
                             'platform_id' => $platform -> id, // se asignará después de crear o actualizar la plataforma
                         ]
                     );

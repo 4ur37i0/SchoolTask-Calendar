@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TaskController extends Controller
 {
@@ -49,7 +51,7 @@ class TaskController extends Controller
     }
 
     public function store(Request $request){
-        \Log::info('Task store called', $request->all());
+        Log::info('Task store called', $request->all());
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -64,7 +66,7 @@ class TaskController extends Controller
         'priority' => 2,//medium by default
         'status' => 1,//pending by default
         'source_type' => 2,//personal
-        'user_id' => auth()->id(),
+        'user_id' => Auth::id(),
         'platform_id' => null, // nullable para tareas personales
     ]);
 
@@ -74,7 +76,7 @@ class TaskController extends Controller
 
     //to get the color from the platform table
     public function index(){
-    $tasks = Task::where('user_id', auth()->id())
+    $tasks = Task::where('user_id', Auth::id())
         ->with('platform') // get platform data
         ->get();
 

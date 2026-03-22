@@ -8,6 +8,7 @@ use App\Models\Task;
 use App\Models\Platform;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class GoogleClassroomController extends Controller
@@ -15,8 +16,7 @@ class GoogleClassroomController extends Controller
     public function sync(Request $request)
     {
         $accessToken = $request->input('access_token');
-        $color = '#2ecc71'; // Verde por default para Classroom
-
+        
         try {
             if (empty($accessToken)) {
                 return response()->json([
@@ -58,6 +58,18 @@ class GoogleClassroomController extends Controller
                         ->get("https://classroom.googleapis.com/v1/courses/{$course['id']}/courseWork")
                 )->toArray()
             );
+
+            Platform::updateOrCreate(
+                ['name' => 'Google Classroom'],
+                [
+                    'url' => 'https://classroom.google.com',
+                    'name' => 'Google Classroom',
+                    'token' => $accessToken,
+                ]
+            );
+
+            $classroomPlatform = Platform::where('name', 'Google Classroom')->first();
+
 
             // Procesar las respuestas paralelas
             foreach ($responses as $index => $tasksResponse) {
@@ -107,7 +119,6 @@ class GoogleClassroomController extends Controller
                         ? 'pendiente'
                         : 'atrasado';
 
-                    // Crear o actualizar tarea
                     Task::updateOrCreate(
                         [
                             'title' => $task['title'],
@@ -116,7 +127,10 @@ class GoogleClassroomController extends Controller
                         [
                             'due_date' => $dueDate,
                             'status' => $status,
-                            'color_rgb' => $color,
+                            'source_type' => 1,//platform
+                            'priority' => 2,//medium
+                            'user_id' => Auth::id(),
+                            'platform_id' => $classroomPlatform->id, // se asignará después de crear o actualizar la plataforma
                         ]
                     );
 
@@ -124,14 +138,6 @@ class GoogleClassroomController extends Controller
                 }
             }
 
-            Platform::updateOrCreate(
-                ['name' => 'Google Classroom'],
-                [
-                    'url' => 'https://classroom.google.com',
-                    'name' => 'Google Classroom',
-                    'token' => $accessToken,
-                ]
-            );
 
             return response()->json([
                 'success' => true,

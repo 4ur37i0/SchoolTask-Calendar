@@ -1,3 +1,4 @@
+/*
 import RegisteredUserController from '@/actions/App/Http/Controllers/Auth/RegisteredUserController';
 import { login } from '@/routes';
 import { Form, Head } from '@inertiajs/react';
@@ -115,3 +116,4 @@ export default function Register() {
         </AuthLayout>
     );
 }
+*/
