@@ -51,4 +51,13 @@ class TaskController extends Controller
     public function store(Request $request){
         dd($request->all()); //it works 
     }
+
+    //to get the color from the platform table
+    public function index(){
+    $tasks = Task::where('user_id', auth()->id())
+        ->with('platform') // get platform data
+        ->get();
+
+    return response()->json($tasks);
+    }
 }

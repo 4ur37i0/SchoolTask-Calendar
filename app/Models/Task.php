@@ -18,4 +18,15 @@ class Task extends Model
         'user_id',
         'platform_id',
     ];
+
+    //relationships for user and platform
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
+    public function platform()
+{
+    return $this->belongsTo(Platform::class);
+}
 }

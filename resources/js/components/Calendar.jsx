@@ -32,8 +32,8 @@ const Calendar = () => {
         data.map(task => ({
           title: task.title,
           start: task.due_date,
-          backgroundColor: task.color_rgb || '#3B82F6', 
-          borderColor: setBorderColor(task.status) || '#3B82F6',
+          backgroundColor: task.platform?.default_color || '#0a3075', 
+          borderColor: setBorderColor(task.status) || '#2973ea',
           textColor: '#fff',
           extendedProps: {
             course: task.course,
