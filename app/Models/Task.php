@@ -11,6 +11,11 @@ class Task extends Model
         'title',
         'due_date',
         'status',
-        'color_rgb'
+        //fields added bc of personal tasks
+        'description',
+        'source',
+        'priority',
+        'user_id',
+        'platform_id',
     ];
 }

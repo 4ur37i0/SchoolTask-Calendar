@@ -9,6 +9,7 @@ class Platform extends Model
     protected $fillable = [
         'url',
         'name',
-        'token'
+        'type',//personal, moodle, google and so on
+        'default_color'//color of the platform in rgb format
     ];
 }

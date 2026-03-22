@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Platform;
+use App\Models\UserPlatform;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Task;
@@ -66,6 +67,33 @@ class MoodleController extends Controller
                 'moodlewsrestformat' => 'json'
             ])->json();
 
+            //I moved it I needed to create the platform before creating the tasks to assign the platform_id to the tasks
+            $platform = Platform::updateOrCreate([
+                'url' => $url,
+            ],[
+                'name' => $name,
+                'type' => 'moodle',
+                'default_color' => $color,
+                'url' => $url
+            ]
+            );
+
+            //create or update the pivot table with the token
+            UserPlatform::updateOrCreate(
+                [
+                    'user_id' => auth()->id(),
+                    'platform_id' => $platform->id,
+                ],
+                [
+                    'token' => $token
+                ]
+            );
+                        
+            return response()->json([
+            'success' => true,
+            'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos."
+            ]);
+          
             $count = 0;
             foreach ($getCourses as $course) {
                 $courseName = $course['fullname'];
@@ -90,27 +118,22 @@ class MoodleController extends Controller
                         [
                             'due_date' => $taskDate->format('Y-m-d'),
                             'status' => $status,
-                            'color_rgb' => $color
+                            'source' => 'plataform',
+                            'priority' => 'medium',
+                            'user_id' => auth()->id(),
+                            'platform_id' => null, // se asignará después de crear o actualizar la plataforma
                         ]
                     );
 
                     $count++;
                 }
-            }
 
-            Platform::updateOrCreate([
-                'url' => $url,
-            ],[
-                'url' => $url,
-                'name' => $name,
-                'token' => $token
-            ]
-            );
-
-            return response()->json([
+                return response()->json([
                 'success' => true,
                 'message' => "Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
             ]);
+
+            }
 
         } catch (\Exception $e) {
             Log::error("Error general: " . $e->getMessage());
