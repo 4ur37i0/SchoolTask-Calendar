@@ -10,7 +10,7 @@ RUN echo "Installing system dependencies..." && \
         git \
         curl \
         libpng-dev \
-        libonig-dev \
+        oniguruma-dev \
         libxml2-dev \
         zip \
         unzip \
