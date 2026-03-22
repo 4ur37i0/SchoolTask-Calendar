@@ -133,7 +133,6 @@ const Calendar = () => {
     console.log('Cerrando modal'); //debug log to check when the modal is being closed
     setIsModalOpen(false); //close the modal
     setSelectedDate(''); //reset the selected date
-    dd(data); //debug log to check the data being passed to the modal
   };
 
   //function when a new task is created successfully
