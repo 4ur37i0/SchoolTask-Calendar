@@ -51,13 +51,29 @@ export default function CreateTaskModal({
 
     //Function to handle form submission, sends a POST request to create a new task.
     const handleSubmit = async (e: React.FormEvent) => {
-        
         e.preventDefault(); //prevent default form submission behavior
         setLoading(true); //set loading state to true while submitting
         setError(null); //reset any previous errors
-    
-        router.post('/tasks', { ...formData}, {
-        onSuccess: () => {
+
+        try{
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || ''; //get CSRF token from meta tag  
+
+            const response = await fetch('/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '', //include CSRF token in the request headers
+                },
+                credentials: 'same-origin', //include cookies in the request
+                body: JSON.stringify(formData), //send form data as JSON
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'An error occurred while creating the task.');
+            }
+
             setFormData({
                 title: "",
                 description: "",
@@ -66,18 +82,40 @@ export default function CreateTaskModal({
                 priority: "medium",
                 source_type: "personal",
             });
-            onTaskCreated();
-            onClose();
-        },
-        onError: (errors) => {
-            console.error("Error creating task:", errors);
-            setError("An error occurred while creating the task. Please try again.");
-        },
-        onFinish: () => {
-            setLoading(false);
-        },
-    });
-};
+
+            onTaskCreated(); //call the onTaskCreated callback to refresh the task list
+            onClose(); //close the modal
+
+        } catch (error) {
+            console.error("Error creating task:", error);
+            setError(error instanceof Error ? error.message : "An error occurred while creating the task. Please try again.");
+            }finally {
+                setLoading(false); //set loading state to false after submission is complete
+        }
+    }
+    
+    //     router.post('/tasks', { ...formData}, {
+    //     onSuccess: () => {
+    //         setFormData({
+    //             title: "",
+    //             description: "",
+    //             due_date: selectedDate || new Date().toISOString().split("T")[0],
+    //             status: "pending",
+    //             priority: "medium",
+    //             source_type: "personal",
+    //         });
+    //         onTaskCreated();
+    //         onClose();
+    //     },
+    //     onError: (errors) => {
+    //         console.error("Error creating task:", errors);
+    //         setError("An error occurred while creating the task. Please try again.");
+    //     },
+    //     onFinish: () => {
+    //         setLoading(false);
+    //     },
+    // });
+
 
     //RENDER
     if (!isOpen) return null; //if modal is not open, render nothing
@@ -196,9 +234,10 @@ export default function CreateTaskModal({
                             Cancelar
                         </button>
                         <button
-                            type="submit"
+                            type="button"
                             disabled={loading} //disable button while loading
                             className={`flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed`}
+                            onClick={handleSubmit}
                         >
                             {loading ? "Guardando..." : "Guardar"}
                         </button>

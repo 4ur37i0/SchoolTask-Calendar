@@ -49,6 +49,35 @@ class TaskController extends Controller
     }
 
     public function store(Request $request){
-        dd($request->all()); //it works 
+        \Log::info('Task store called', $request->all());
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'due_date' => 'required|date',
+    ]);
+
+    $task = Task::create([
+        'title' => $validated['title'],
+        'description' => $validated['description'] ?? null,
+        'due_date' => $validated['due_date'],
+        'priority' => 2,//medium by default
+        'status' => 1,//pending by default
+        'source_type' => 2,//personal
+        'user_id' => auth()->id(),
+        'platform_id' => null, // nullable para tareas personales
+    ]);
+
+        return response()->json(['message' =>
+             'Tarea creada correctamente', 'task' => $task], 201);
+    }
+
+    //to get the color from the platform table
+    public function index(){
+    $tasks = Task::where('user_id', auth()->id())
+        ->with('platform') // get platform data
+        ->get();
+
+    return response()->json($tasks);
     }
 }

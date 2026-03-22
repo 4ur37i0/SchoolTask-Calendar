@@ -31,7 +31,7 @@ return new class extends Migration
 
             //Foreign keys
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); //Relation with user
-            $table->foreignId('platform_id')->constrained()->onDelete('cascade'); //Relation with platform
+            $table->foreignId('platform_id')->nullable()->constrained()->onDelete('cascade'); //Relation with platform
         });
     }
 

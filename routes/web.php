@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/listPlatforms', [PlatformController::class, 'getLocalPlatforms']);
 
     Route::post('/tasks', [TaskController::class, 'store']);
+    Route::get('/tasks', [TaskController::class, 'index']);
     
 });
 
