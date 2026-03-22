@@ -88,11 +88,6 @@ class MoodleController extends Controller
                     'token' => $token
                 ]
             );
-                        
-            return response()->json([
-            'success' => true,
-            'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos."
-            ]);
           
             $count = 0;
             foreach ($getCourses as $course) {
@@ -118,10 +113,10 @@ class MoodleController extends Controller
                         [
                             'due_date' => $taskDate->format('Y-m-d'),
                             'status' => $status,
-                            'source' => 'plataform',
-                            'priority' => 'medium',
+                            'source_type' => 1,//platform
+                            'priority' => 2,//medium
                             'user_id' => auth()->id(),
-                            'platform_id' => null, // se asignará después de crear o actualizar la plataforma
+                            'platform_id' => $platform -> id, // se asignará después de crear o actualizar la plataforma
                         ]
                     );
 
@@ -130,7 +125,8 @@ class MoodleController extends Controller
 
                 return response()->json([
                 'success' => true,
-                'message' => "Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
+                'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos.\n
+                                Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
             ]);
 
             }
