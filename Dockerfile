@@ -43,6 +43,12 @@ COPY artisan ./
 # Copy bootstrap
 COPY bootstrap ./bootstrap
 
+# Copy routes
+COPY routes ./routes
+
+# Copy app
+COPY app ./app
+
 # Install PHP dependencies
 RUN echo "Installing PHP dependencies..." && \
     composer install --no-dev --optimize-autoloader --no-interaction
