@@ -63,6 +63,9 @@ RUN echo "Installing Node.js dependencies..." && \
 # Copy application code
 COPY . .
 
+# Set build arg for Vite
+ARG VITE_GOOGLE_CLIENT_ID
+
 # Build React assets
 RUN echo "Building React assets..." && \
     npm run build
