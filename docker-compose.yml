@@ -19,6 +19,7 @@ services:
       - DB_PASSWORD=
       - SESSION_DRIVER=file
       - TRUSTED_PROXIES=*
+      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
     volumes:
       - ./storage:/var/www/storage
     networks:
