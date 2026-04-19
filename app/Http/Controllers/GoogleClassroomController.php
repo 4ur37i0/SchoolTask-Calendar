@@ -66,7 +66,7 @@ class GoogleClassroomController extends Controller
                     'user_id' => Auth::id(),
                 ],
                 [
-                    'type' => 'Google Classroom',
+                    'type' => 'google_classroom',
                     'default_color' => '#00a63e',
                     'token' => 'No Token',
                 ]
