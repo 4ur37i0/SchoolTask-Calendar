@@ -60,15 +60,19 @@ class GoogleClassroomController extends Controller
             );
 
             Platform::updateOrCreate(
-                ['name' => 'Google Classroom'],
                 [
                     'url' => 'https://classroom.google.com',
                     'name' => 'Google Classroom',
-                    'token' => $accessToken,
+                    'user_id' => Auth::id(),
+                ],
+                [
+                    'type' => 'Google Classroom',
+                    'default_color' => '#00a63e',
+                    'token' => 'No Token',
                 ]
             );
 
-            $classroomPlatform = Platform::where('name', 'Google Classroom')->first();
+            $classroomPlatform = Platform::where('name', 'Google Classroom')->where('user_id', Auth::id())->first();
 
 
             // Procesar las respuestas paralelas

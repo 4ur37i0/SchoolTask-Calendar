@@ -48,4 +48,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function platforms()
+    {
+        return $this->hasMany(Platform::class);
+    }
 }

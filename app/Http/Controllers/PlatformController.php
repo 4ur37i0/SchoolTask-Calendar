@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Platform;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PlatformController extends Controller
 {
@@ -25,6 +26,6 @@ class PlatformController extends Controller
     }
 
     public function getLocalPlatforms(){
-        return response()->json(Platform::all());
+        return response()->json(Auth::user()->platforms);
     }
 }

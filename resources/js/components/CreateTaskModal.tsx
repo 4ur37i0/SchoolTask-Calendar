@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { CreateTaskData } from "@/types";
-import { on } from "events";
-import { router } from '@inertiajs/react';
 
 
 //PROPS (parameters passed to the component)
@@ -21,6 +19,15 @@ export default function CreateTaskModal({
 
 //STATES
 
+    useEffect(() => {
+        if (selectedDate) {
+            setFormData(prev => ({
+                ...prev,
+                due_date: selectedDate
+            }));
+        }
+    }, [selectedDate]);
+
     const [loading, setLoading] = useState(false); //loading state for form submission
 
     const [error, setError] = useState<string | null>(null); //error state for form submission
@@ -29,7 +36,7 @@ export default function CreateTaskModal({
     const [formData, setFormData] = useState<CreateTaskData>({
         title: "",
         description: "",
-        due_date: selectedDate || new Date().toISOString().split("T")[0], //default to selected date or current day
+        due_date: selectedDate ,
         status: "pending",
         priority: "medium",
         source_type: "personal",
@@ -77,7 +84,7 @@ export default function CreateTaskModal({
             setFormData({
                 title: "",
                 description: "",
-                due_date: selectedDate || new Date().toISOString().split("T")[0],
+                due_date: selectedDate,
                 status: "pending",
                 priority: "medium",
                 source_type: "personal",

@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('platforms', function (Blueprint $table) {
             $table->id();
             $table->string('name'); 
+            $table->string('token'); 
+            $table->foreignId('user_id')->constrained();
             $table->enum('type',['google_classroom','microsoft_teams','moodle','personal']); //agrega el tipo de plataforma
             $table->string('default_color')->nullable(); //color por defecto de la plataforma (opcional)
             $table->string('url');

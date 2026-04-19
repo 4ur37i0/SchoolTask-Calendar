@@ -176,7 +176,7 @@ const Calendar = () => {
           eventDisplay="block"
           eventClick={(info) => viewDetails(info.event)}
           dateClick={handleDateClick} //handle date click to open the create task modal with the selected date
-          dayCellClassNames="cursor-pointer "  // indicates that they are clickable idk how to add hover effect to the day cells tho :c
+          dayCellClassNames="cursor-pointer"
           eventDidMount={(info) => {
             const { status } = info.event.extendedProps;
             if (status === 'hecho') {
@@ -249,7 +249,7 @@ const Calendar = () => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onTaskCreated={handleTaskCreated}
-          selectedDate={selectedDate}
+          selectedDate={selectedDate?.toString()}
         />
       </div>
     </>

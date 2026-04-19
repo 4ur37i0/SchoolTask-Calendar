@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Platform;
-use App\Models\UserPlatform;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Task;
@@ -22,6 +21,11 @@ class MoodleController extends Controller
         $password = $request->input('password');
         $color = $request->input('color');
         $token = "";
+
+
+        if(Platform::where('user_id', Auth::id())->where('url', $url)->exists()){
+            return response()->json(['message' => 'Esta plataforma ya esta registrada']);
+        }
 
         Log::info('Color recibido desde React:', ['color' => $color]);
         try {
@@ -70,24 +74,15 @@ class MoodleController extends Controller
 
             //I moved it I needed to create the platform before creating the tasks to assign the platform_id to the tasks
             $platform = Platform::updateOrCreate([
-                'url' => $url,
+                'token' => $token,
+                'user_id' => Auth::id(),
             ],[
+                'url' => $url,
                 'name' => $name,
                 'type' => 'moodle',
                 'default_color' => $color,
-                'url' => $url
+                'url' => $url,
             ]
-            );
-
-            //create or update the pivot table with the token
-            UserPlatform::updateOrCreate(
-                [
-                    'user_id' => Auth::id(),
-                    'platform_id' => $platform->id,
-                ],
-                [
-                    'token' => $token
-                ]
             );
           
             $count = 0;
@@ -108,6 +103,8 @@ class MoodleController extends Controller
 
                     Task::updateOrCreate(
                         [
+                            'user_id' => Auth::id(),
+                            'platform_id' => $platform -> id, // se asignará después de crear o actualizar la plataforma
                             'title' => $task['name'],
                             'course' => $courseName,
                         ],
@@ -116,8 +113,6 @@ class MoodleController extends Controller
                             'status' => $status,
                             'source_type' => 1,//platform
                             'priority' => 2,//medium
-                            'user_id' => Auth::id(),
-                            'platform_id' => $platform -> id, // se asignará después de crear o actualizar la plataforma
                         ]
                     );
 
@@ -204,17 +199,25 @@ class MoodleController extends Controller
                     $taskDate = Carbon::createFromTimestamp($task['timestart'])->subHours(6);
                     $status = $taskDate->isAfter(Carbon::now()) ? 'pendiente' : 'atrasado';
 
-                    Task::updateOrCreate(
+                    $taskModel = Task::updateOrCreate(
                         [
-                            'title' => $task['name'],
-                            'course' => $courseName,
+                            'user_id'     => Auth::id(),
+                            'platform_id' => $platform->id,
+                            'title'       => $task['name'],
                         ],
                         [
-                            'due_date' => $taskDate->format('Y-m-d'),
-                            'status' => $status,
+                            'course'      => $courseName, // Si el curso puede cambiar, ponlo aquí
+                            'due_date'    => $taskDate->format('Y-m-d'),
+                            'status'      => $status,
+                            'source_type' => 1,
+                            'priority'    => 2,
                         ]
                     );
-                    $count++;
+
+                    if ($taskModel->wasRecentlyCreated) {
+                        $count++;
+                    }
+
                 }
             }
 

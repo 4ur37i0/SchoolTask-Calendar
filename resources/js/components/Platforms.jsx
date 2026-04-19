@@ -61,7 +61,7 @@ export default function Platforms() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    toast("Cargando Tareas...");
+    toast("Buscando plataforma...");
     console.log(JSON.stringify(formData))
     try {
       const res = await fetch("/moodle/sync", {

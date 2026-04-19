@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,7 @@ class TaskController extends Controller
         $status = $request->input('status');
         $taskDate = $request->input('date');
         $task = Task::where('title', $title)
+                ->where('user_id', Auth::id())
                 ->where('course', $course)
                 ->first();
 
