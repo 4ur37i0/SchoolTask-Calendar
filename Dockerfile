@@ -25,8 +25,8 @@ RUN apk add --no-cache \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install Composer
-RUN curl -sS https://getcomposer.org | php -- --install-dir=/usr/local/bin --filename=composer
+# --- Manera oficial y segura de instalar Composer en Docker ---
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
@@ -39,7 +39,6 @@ RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts \
     && npm install
 
 # 3. Copiar TODO el código de la aplicación (config/, app/, routes/, etc.)
-# Esto garantiza que Laravel pueda inicializarse completamente durante la compilación de Vite
 COPY . .
 
 # 4. Asegurar archivo de entorno y generar la clave de la aplicación
@@ -53,7 +52,7 @@ RUN composer dump-autoload --optimize --no-dev
 ARG VITE_GOOGLE_CLIENT_ID
 RUN npm run build
 
-# 7. Configurar permisos para storage y cache (cambiado a 775 para evitar bloqueos de escritura)
+# 7. Configurar permisos para storage y cache
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
