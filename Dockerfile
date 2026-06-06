@@ -1,5 +1,5 @@
-# Use PHP 8.2 with FPM and Alpine for a lightweight image
-FROM php:8.2-fpm-alpine
+# Use PHP 8.3 with FPM and Alpine for a lightweight image
+FROM php:8.3-fpm-alpine
 
 # Add logs for build process
 RUN echo "Starting Dockerfile build for Laravel + React project"
