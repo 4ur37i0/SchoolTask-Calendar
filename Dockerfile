@@ -37,9 +37,13 @@ COPY artisan ./
 COPY bootstrap ./bootstrap
 COPY routes ./routes
 COPY app ./app
+COPY .env.example .env
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
     && npm install
+
+# Ensure application environment exists for build-time artisan commands
+RUN php artisan key:generate --force --no-interaction
 
 # Copy application source
 COPY . .
