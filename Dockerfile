@@ -1,15 +1,16 @@
-# Use PHP 8.3 with FPM and Alpine for a lightweight image
 FROM php:8.3-fpm-alpine
 
-# Add logs for build process
-RUN echo "Starting Dockerfile build for Laravel + React project"
-
-# Install system dependencies
-RUN echo "Installing system dependencies..." && \
-    apk add --no-cache \
+# Install required system packages and build dependencies
+RUN apk add --no-cache \
         git \
         curl \
+        bash \
         libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        libwebp-dev \
+        zlib-dev \
+        libzip-dev \
         oniguruma-dev \
         libxml2-dev \
         zip \
@@ -17,75 +18,46 @@ RUN echo "Installing system dependencies..." && \
         nodejs \
         npm \
         nginx \
-        supervisor
+        supervisor \
+    && rm -rf /var/cache/apk/*
 
-# Clear cache
-RUN echo "Clearing APK cache..." && \
-    rm -rf /var/cache/apk/*
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install PHP extensions
-RUN echo "Installing PHP extensions..." && \
-    docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Get latest Composer
-RUN echo "Installing Composer..." && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Set working directory
 WORKDIR /var/www
 
-# Copy composer files
+# Copy dependency manifests and minimal app files needed by composer scripts
 COPY composer.json composer.lock* ./
-
-# Copy artisan
+COPY package.json package-lock.json* ./
 COPY artisan ./
-
-# Copy bootstrap
 COPY bootstrap ./bootstrap
-
-# Copy routes
 COPY routes ./routes
-
-# Copy app
 COPY app ./app
 
-# Install PHP dependencies
-RUN echo "Installing PHP dependencies..." && \
-    composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+    && npm install
 
-# Copy package files
-COPY package.json package-lock.json* ./
-
-# Install Node.js dependencies
-RUN echo "Installing Node.js dependencies..." && \
-    npm install
-
-# Copy application code
+# Copy application source
 COPY . .
 
-# Set build arg for Vite
+# Build front-end assets
 ARG VITE_GOOGLE_CLIENT_ID
+RUN npm run build
 
-# Build React assets
-RUN echo "Building React assets..." && \
-    npm run build
+# Set permissions for storage and cache
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
-# Set permissions
-RUN echo "Setting permissions..." && \
-    chown -R www-data:www-data /var/www && \
-    chmod -R 755 /var/www/storage && \
-    chmod -R 755 /var/www/bootstrap/cache
-
-# Copy Nginx configuration
+# Copy service configuration
 COPY docker/nginx.conf /etc/nginx/nginx.conf
-
-# Copy Supervisor configuration
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose port 80
 EXPOSE 80
 
-# Start Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # Final log
