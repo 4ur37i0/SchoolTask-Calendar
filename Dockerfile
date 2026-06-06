@@ -26,37 +26,38 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS https://getcomposer.org | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www
 
-# Copy dependency manifests and minimal app files needed by composer scripts
+# 1. Copiar manifiestos de dependencias primero para optimizar la caché de Docker
 COPY composer.json composer.lock* ./
 COPY package.json package-lock.json* ./
-COPY artisan ./
-COPY bootstrap ./bootstrap
-COPY routes ./routes
-COPY app ./app
-COPY .env.example .env
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+# 2. Instalar dependencias sin ejecutar scripts (ya que aún no copiamos el código)
+RUN composer install --no-dev --no-interaction --prefer-dist --no-scripts \
     && npm install
 
-# Ensure application environment exists for build-time artisan commands
-RUN php artisan key:generate --force --no-interaction
-
-# Copy application source
+# 3. Copiar TODO el código de la aplicación (config/, app/, routes/, etc.)
+# Esto garantiza que Laravel pueda inicializarse completamente durante la compilación de Vite
 COPY . .
 
-# Build front-end assets
+# 4. Asegurar archivo de entorno y generar la clave de la aplicación
+RUN cp .env.example .env \
+    && php artisan key:generate --force --no-interaction
+
+# 5. Optimizar el cargador automático de Composer ahora que el código está presente
+RUN composer dump-autoload --optimize --no-dev
+
+# 6. Compilar front-end assets (Wayfinder ahora tiene acceso a la estructura completa de Laravel)
 ARG VITE_GOOGLE_CLIENT_ID
 RUN npm run build
 
-# Set permissions for storage and cache
+# 7. Configurar permisos para storage y cache (cambiado a 775 para evitar bloqueos de escritura)
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage /var/www/bootstrap/cache
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy service configuration
+# Copiar configuraciones de servicios
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
