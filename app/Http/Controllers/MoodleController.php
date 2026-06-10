@@ -119,13 +119,13 @@ class MoodleController extends Controller
                     $count++;
                 }
 
-                return response()->json([
+            }
+
+            return response()->json([
                 'success' => true,
                 'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos.\n
-                                Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
+                Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
             ]);
-
-            }
 
         } catch (\Exception $e) {
             Log::error("Error general: " . $e->getMessage());
