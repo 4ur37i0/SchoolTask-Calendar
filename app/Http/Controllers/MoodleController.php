@@ -27,7 +27,7 @@ class MoodleController extends Controller
             return response()->json(['message' => 'Esta plataforma ya esta registrada']);
         }
 
-        Log::info('Color recibido desde React:', ['color' => $color]);
+        #Log::info('Color recibido desde React:', ['color' => $color]);
         try {
             if (empty($url) || empty($username) || empty($password)) {
                 return response()->json([
@@ -36,37 +36,23 @@ class MoodleController extends Controller
                 ], 400);
             }
 
-            $resp = Http::get($url . '/login/token.php', [
-                'username' => $username,
-                'password' => $password,
-                'service' => 'moodle_mobile_app'
-            ]);
+            $token = $this->getToken($url, $username, $password);
 
-            if ($resp->failed()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No se pudo conectar con la URL proporcionada.'
-                ], 400);
-            }
-
-            $getToken = $resp->json();
-            if (!isset($getToken['token'])) {
+            if (empty($token)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Credenciales incorrectas o usuario no válido.'
                 ], 401);
             }
 
-            $token = $getToken['token'];
-
             $getUserInfo = Http::get($url . '/webservice/rest/server.php', [
-                'wstoken' => $getToken['token'],
+                'wstoken' => $token,
                 'wsfunction' => 'core_webservice_get_site_info',
                 'moodlewsrestformat' => 'json'
             ])->json();
 
             $getCourses = Http::get($url . '/webservice/rest/server.php', [
-                'wstoken' => $getToken['token'],
+                'wstoken' => $token,
                 'wsfunction' => 'core_enrol_get_users_courses',
                 'userid' => $getUserInfo['userid'],
                 'moodlewsrestformat' => 'json'
@@ -74,14 +60,13 @@ class MoodleController extends Controller
 
             //I moved it I needed to create the platform before creating the tasks to assign the platform_id to the tasks
             $platform = Platform::updateOrCreate([
-                'token' => $token,
                 'user_id' => Auth::id(),
-            ],[
                 'url' => $url,
+            ],[
+                'token' => $token,
                 'name' => $name,
                 'type' => 'moodle',
                 'default_color' => $color,
-                'url' => $url,
             ]
             );
           
@@ -89,7 +74,7 @@ class MoodleController extends Controller
             foreach ($getCourses as $course) {
                 $courseName = $course['fullname'];
                 $getTasks = Http::get($url . '/webservice/rest/server.php', [
-                    'wstoken' => $getToken['token'],
+                    'wstoken' => $token,
                     'wsfunction' => 'core_calendar_get_calendar_events',
                     'moodlewsrestformat' => 'json',
                     'events[courseids][0]' => $course['id']
@@ -119,15 +104,15 @@ class MoodleController extends Controller
                     $count++;
                 }
 
-                return response()->json([
-                'success' => true,
-                'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos.\n
-                                Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
-            ]);
-
             }
 
-        } catch (\Exception $e) {
+            return response()->json([
+                'success' => true,
+                'message' => "Plataforma conectada correctamente. Se encontraron " . count($getCourses) . " cursos.\n
+                Tareas sincronizadas correctamente. Se encontraron {$count} tareas."
+            ]);
+
+        } catch (Exception $e) {
             Log::error("Error general: " . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -141,7 +126,7 @@ class MoodleController extends Controller
         $url = $request->input('url');
 
         try {
-            $platform = \App\Models\Platform::where('url', $url)->first();
+            $platform = \App\Models\Platform::where('url', $url)->where('user_id', Auth::id())->first();
 
             if (!$platform) {
                 return response()->json([
@@ -164,10 +149,24 @@ class MoodleController extends Controller
             ])->json();
 
             if (isset($getUserInfo['exception'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'El token ha expirado o es invalido.'
-                ], 401);
+                #If the token is invalid, get a new one and update the platform
+                $newToken = $this->getToken($url, $platform->username, $platform->password);
+
+                if (empty($newToken)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Credenciales incorrectas o usuario no válido.'
+                    ], 401);
+                }
+
+                $platform->token = $newToken;
+                $platform->save();
+                
+                $getUserInfo = Http::get($url . '/webservice/rest/server.php', [
+                    'wstoken' => $platform->token,
+                    'wsfunction' => 'core_webservice_get_site_info',
+                    'moodlewsrestformat' => 'json'
+                ])->json();
             }
 
             // Obtener cursos del usuario
@@ -204,9 +203,9 @@ class MoodleController extends Controller
                             'user_id'     => Auth::id(),
                             'platform_id' => $platform->id,
                             'title'       => $task['name'],
+                            'course'      => $courseName,
                         ],
                         [
-                            'course'      => $courseName, // Si el curso puede cambiar, ponlo aquí
                             'due_date'    => $taskDate->format('Y-m-d'),
                             'status'      => $status,
                             'source_type' => 1,
@@ -232,6 +231,27 @@ class MoodleController extends Controller
                 'success' => false,
                 'message' => 'Error inesperado: ' . $e->getMessage()
             ], 500);
+        }
+    }
+    
+    private function getToken($url, $username, $password): ?string
+    {
+        try {
+            $resp = Http::get($url . '/login/token.php', [
+                'username' => $username,
+                'password' => $password,
+                'service' => 'moodle_mobile_app'
+            ]);
+
+            if ($resp->failed() || !isset($resp->json()['token'])) {
+                return null;
+            }
+
+            return (string) $resp->json()['token'] ;
+            
+        } catch (Exception $e) {
+            Log::error("Excepción al obtener token: " . $e->getMessage());
+            return null;
         }
     }
 }
